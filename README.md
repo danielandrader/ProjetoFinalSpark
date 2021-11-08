@@ -73,7 +73,7 @@ No rows affected (0.074 seconds)
 
 ## Criar tabela externa de staging sem particionamento
 
-0: jdbc:hive2://localhost:10000> create external table tbl_covid_ext(regiao STRING, estado STRING, municipio STRING, coduf INT, codmun INT, codRegiaoSaude INT, nomeRegiaoSaude STRING, data STRING, semanaEpi INT, populacaoTCU2019 INT, casosAcumulado INT, casosNovos INT, obitosAcumulado INT, obitosNovos INT, Recuperadosnovos INT, emAcompanhamentoNovos INT, interior_metropolitana INT) row format delimited fields terminated by ';' lines terminated by '\n' stored as textfile location '/user/daniel/data/HIST_PAINEL_COVIDBR_04nov2021';
+0: jdbc:hive2://localhost:10000> create external table tbl_covid_ext(regiao STRING, estado STRING, municipio STRING, coduf INT, codmun INT, codRegiaoSaude INT, nomeRegiaoSaude STRING, data DATE, semanaEpi INT, populacaoTCU2019 INT, casosAcumulado INT, casosNovos INT, obitosAcumulado INT, obitosNovos INT, Recuperadosnovos INT, emAcompanhamentoNovos INT, interior_metropolitana INT) row format delimited fields terminated by ';' lines terminated by '\n' stored as textfile location '/user/daniel/data/HIST_PAINEL_COVIDBR_04nov2021';
 No rows affected (0.246 seconds)
 
 0: jdbc:hive2://localhost:10000> select count(*) from tbl_covid_ext;
@@ -97,7 +97,7 @@ WARNING: Hive-on-MR is deprecated in Hive 2 and may not be available in the futu
 | codmun                  | int        |          |
 | codregiaosaude          | int        |          |
 | nomeregiaosaude         | string     |          |
-| data                    | string     |          |
+| data                    | date       |          |
 | semanaepi               | int        |          |
 | populacaotcu2019        | int        |          |
 | casosacumulado          | int        |          |
@@ -123,7 +123,7 @@ SET hive.exec.max.created.files = 1000000;
 
 ## Criar tabela com particionamento
 
-0: jdbc:hive2://localhost:10000> create table tbl_covid_part(regiao STRING, estado STRING, coduf INT, codmun INT, codRegiaoSaude INT, nomeRegiaoSaude STRING, data STRING, semanaEpi INT, populacaoTCU2019 INT, casosAcumulado INT, casosNovos INT, obitosAcumulado INT, obitosNovos INT, Recuperadosnovos INT, emAcompanhamentoNovos INT, interior_metropolitana INT) partitioned by (MUNICIPIO string) stored as textfile;
+0: jdbc:hive2://localhost:10000> create table tbl_covid_part(regiao STRING, estado STRING, coduf INT, codmun INT, codRegiaoSaude INT, nomeRegiaoSaude STRING, data DATE, semanaEpi INT, populacaoTCU2019 INT, casosAcumulado INT, casosNovos INT, obitosAcumulado INT, obitosNovos INT, Recuperadosnovos INT, emAcompanhamentoNovos INT, interior_metropolitana INT) partitioned by (MUNICIPIO string) stored as textfile;
 No rows affected (0.343 seconds)
 
 0: jdbc:hive2://localhost:10000> select count(*) from tbl_covid_part;
@@ -144,7 +144,7 @@ No rows affected (0.343 seconds)
 | codmun                   | int                   |                       |
 | codregiaosaude           | int                   |                       |
 | nomeregiaosaude          | string                |                       |
-| data                     | string                |                       |
+| data                     | date                  |                       |
 | semanaepi                | int                   |                       |
 | populacaotcu2019         | int                   |                       |
 | casosacumulado           | int                   |                       |
