@@ -1,6 +1,11 @@
 # ProjetoFinalSpark
 Projeto desenvolvido no treinamento de Engenharia de Dados ministrado pela Semantix Academy
 
+A pasta dataset contem os CSV's utilizados no projeto.
+A pasta notebook contem o procedimento utilizado para gerar as visualizações.
+
+Abaixo os passos para transferência dos CSV's do filesystem local para o HDFS e criação das tabelas Hive.
+
 ## Instalar o pacote do repositório epel 
 yum install epel-release
 
