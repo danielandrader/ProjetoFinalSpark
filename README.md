@@ -52,17 +52,65 @@ Found 4 items
 ## Container hive-server
 exec -it hive-server bash
 
-beeline -u jdbc:hive2://localhost:10000
+beeline> root@hive_server:/opt# beeline -u jdbc:hive2://localhost:10000
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/opt/hive/lib/log4j-slf4j-impl-2.6.2.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/opt/hadoop-2.7.4/share/hadoop/common/lib/slf4j-log4j12-1.7.10.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [org.apache.logging.slf4j.Log4jLoggerFactory]
+Connecting to jdbc:hive2://localhost:10000
+Connected to: Apache Hive (version 2.3.2)
+Driver: Hive JDBC (version 2.3.2)
+Transaction isolation: TRANSACTION_REPEATABLE_READ
+Beeline version 2.3.2 by Apache Hive
+
 
 create database covid;
 
-use covid;
+0: jdbc:hive2://localhost:10000> use covid;
+No rows affected (0.074 seconds)
+
 
 ## Criar tabela externa de staging sem particionamento
 
-create external table tbl_covid_ext(C01 STRING, C02 STRING, C03 STRING, C04 INT, C05 INT, C06 INT, C07 STRING, C08 STRING, C09 INT, C10 INT, C11 INT, C12 INT, C13 INT, C14 INT, C15 INT, C16 INT, C17 INT) partitioned by (municipio string) row format delimited fields terminated by ';' lines terminated by '\n' stored as textfile location '/user/daniel/data/covid';
+0: jdbc:hive2://localhost:10000> create external table tbl_covid_ext(regiao STRING, estado STRING, municipio STRING, coduf INT, codmun INT, codRegiaoSaude INT, nomeRegiaoSaude STRING, data STRING, semanaEpi INT, populacaoTCU2019 INT, casosAcumulado INT, casosNovos INT, obitosAcumulado INT, obitosNovos INT, Recuperadosnovos INT, emAcompanhamentoNovos INT, interior_metropolitana INT) row format delimited fields terminated by ';' lines terminated by '\n' stored as textfile location '/user/daniel/data/HIST_PAINEL_COVIDBR_04nov2021';
+No rows affected (0.246 seconds)
 
-describe tbl_covid_ext;
+0: jdbc:hive2://localhost:10000> select count(*) from tbl_covid_ext;
+WARNING: Hive-on-MR is deprecated in Hive 2 and may not be available in the future versions. Consider using a different execution engine (i.e. spark, tez) or using Hive 1.X releases.
++----------+
+|   _c0    |
++----------+
+| 3304844  |
++----------+
+1 row selected (16.965 seconds)
+
+
+0: jdbc:hive2://localhost:10000> describe tbl_covid_ext;
++-------------------------+------------+----------+
+|        col_name         | data_type  | comment  |
++-------------------------+------------+----------+
+| regiao                  | string     |          |
+| estado                  | string     |          |
+| municipio               | string     |          |
+| coduf                   | int        |          |
+| codmun                  | int        |          |
+| codregiaosaude          | int        |          |
+| nomeregiaosaude         | string     |          |
+| data                    | string     |          |
+| semanaepi               | int        |          |
+| populacaotcu2019        | int        |          |
+| casosacumulado          | int        |          |
+| casosnovos              | int        |          |
+| obitosacumulado         | int        |          |
+| obitosnovos             | int        |          |
+| recuperadosnovos        | int        |          |
+| emacompanhamentonovos   | int        |          |
+| interior_metropolitana  | int        |          |
++-------------------------+------------+----------+
+17 rows selected (0.111 seconds)
+
+
 
 ## Ajustes para preparar o ambiente para criação de partição dinâmica
 
@@ -75,21 +123,61 @@ SET hive.exec.max.created.files = 1000000;
 
 ## Criar tabela com particionamento
 
-create external table tbl_covid_part(C01 STRING, C02 STRING, C03 STRING, C04 INT, C05 INT, C06 INT, C07 STRING, C08 STRING, C09 INT, C10 INT, C11 INT, C12 INT, C13 INT, C14 INT, C15 INT, C16 INT, C17 INT) partitioned by (MUNICIPIO string) row format delimited fields terminated by ';' lines terminated by '\n' stored as textfile;
+0: jdbc:hive2://localhost:10000> create table tbl_covid_part(regiao STRING, estado STRING, coduf INT, codmun INT, codRegiaoSaude INT, nomeRegiaoSaude STRING, data STRING, semanaEpi INT, populacaoTCU2019 INT, casosAcumulado INT, casosNovos INT, obitosAcumulado INT, obitosNovos INT, Recuperadosnovos INT, emAcompanhamentoNovos INT, interior_metropolitana INT) partitioned by (MUNICIPIO string) stored as textfile;
+No rows affected (0.343 seconds)
+
+0: jdbc:hive2://localhost:10000> select count(*) from tbl_covid_part;
++------+
+| _c0  |
++------+
+| 0    |
++------+
+1 row selected (0.672 seconds)
+
+0: jdbc:hive2://localhost:10000> describe tbl_covid_part;
++--------------------------+-----------------------+-----------------------+
+|         col_name         |       data_type       |        comment        |
++--------------------------+-----------------------+-----------------------+
+| regiao                   | string                |                       |
+| estado                   | string                |                       |
+| coduf                    | int                   |                       |
+| codmun                   | int                   |                       |
+| codregiaosaude           | int                   |                       |
+| nomeregiaosaude          | string                |                       |
+| data                     | string                |                       |
+| semanaepi                | int                   |                       |
+| populacaotcu2019         | int                   |                       |
+| casosacumulado           | int                   |                       |
+| casosnovos               | int                   |                       |
+| obitosacumulado          | int                   |                       |
+| obitosnovos              | int                   |                       |
+| recuperadosnovos         | int                   |                       |
+| emacompanhamentonovos    | int                   |                       |
+| interior_metropolitana   | int                   |                       |
+| municipio                | string                |                       |
+|                          | NULL                  | NULL                  |
+| # Partition Information  | NULL                  | NULL                  |
+| # col_name               | data_type             | comment               |
+|                          | NULL                  | NULL                  |
+| municipio                | string                |                       |
++--------------------------+-----------------------+-----------------------+
+22 rows selected (0.569 seconds)
+
 
 ## Inserir dados já com o particionamento dinâmico
 
-insert overwrite table tbl_covid_part partition (MUNICIPIO) select C01, C02, C03, C04, C05, C06, C07, C08, C09, C10, C11, C12, C13, C14, C15, C16, C17, C03 from tbl_covid_ext distribute by C03;
+0: jdbc:hive2://localhost:10000> insert overwrite table tbl_covid_part partition (MUNICIPIO) select regiao, estado, coduf, codmun, codRegiaoSaude, nomeRegiaoSaude, data, semanaEpi, populacaoTCU2019, casosAcumulado, casosNovos, obitosAcumulado, obitosNovos, Recuperadosnovos, emAcompanhamentoNovos, interior_metropolitana, municipio from tbl_covid_ext;
+WARNING: Hive-on-MR is deprecated in Hive 2 and may not be available in the future versions. Consider using a different execution engine (i.e. spark, tez) or using Hive 1.X releases.
 
-## Exemplo de inserir dados com particionamento manual
-
-insert overwrite table tbl_covid_part partition (MUNICIPIO='Santos') select C01, C02, C03, C04, C05, C06, C07, C08, C09, C10, C11, C12, C13, C14, C15, C16, C17 from tbl_covid_ext where C03 = 'Santos';
-
----
-
-
-1. Enviar os dados para o hdfs
-
+0: jdbc:hive2://localhost:10000> select count(*) from tbl_covid_part;
+WARNING: Hive-on-MR is deprecated in Hive 2 and may not be available in the future versions. Consider using a different execution engine (i.e. spark, tez) or using Hive 1.X releases.
++----------+
+|   _c0    |
++----------+
+| 3304844  |
++----------+
 
 
-2. Otimizar todos os dados do hdfs para uma tabela Hive particionada por município.
+
+
+
